@@ -14,6 +14,10 @@ FALSE_VALUES = ('no', 'n', 'false', 'f')
 DEFAULT_DATETIME = datetime.datetime(9999, 12, 31, 0, 0, 0)
 NULL_DATE = datetime.date(9999, 12, 31)
 NULL_TIME = datetime.time(0, 0, 0)
+# if ALWAYS_DATETIME is set True then dates and datetimes will all
+# be represented as a datetime.datetime instance rather than
+# deciding between date and datetime
+ALWAYS_DATETIME = False
 
 def normalize_column_type(l, normal_type=None, blanks_as_nulls=True):
     """
@@ -145,18 +149,23 @@ def normalize_column_type(l, normal_type=None, blanks_as_nulls=True):
 
                     d = d.time()
                     add(datetime.time)
+
+                elif ALWAYS_DATETIME is False:
                 # Is it only a date?
-                elif d.time() == NULL_TIME:
-                    if normal_type and normal_type not in [datetime.date, datetime.datetime]:
-                        raise InvalidValueForTypeException(i, x, normal_type) 
+                    if d.time() == NULL_TIME:
+                        if normal_type and normal_type not in [datetime.date, datetime.datetime]:
+                            raise InvalidValueForTypeException(i, x, normal_type) 
 
-                    d = d.date()
-                    add(datetime.date)
-                # It must be a date and time
+                        d = d.date()
+                        add(datetime.date)
+                    # It must be a date and time
+                    else:
+                        if normal_type and normal_type != datetime.datetime:
+                            raise InvalidValueForTypeException(i, x, normal_type) 
+
+                        add(datetime.datetime)
                 else:
-                    if normal_type and normal_type != datetime.datetime:
-                        raise InvalidValueForTypeException(i, x, normal_type) 
-
+                    # we're always going to add d as a datetime
                     add(datetime.datetime)
                 
                 append(d)
