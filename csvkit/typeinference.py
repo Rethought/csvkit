@@ -19,6 +19,9 @@ NULL_TIME = datetime.time(0, 0, 0)
 # deciding between date and datetime
 ALWAYS_DATETIME = False
 
+# Minimum length of string before testing for being a date
+MINIMUM_DATE_LENGTH = 4
+
 def normalize_column_type(l, normal_type=None, blanks_as_nulls=True):
     """
     Attempts to normalize a list (column) of string values to booleans, integers,
@@ -140,6 +143,9 @@ def normalize_column_type(l, normal_type=None, blanks_as_nulls=True):
                     add(NoneType)
                     continue
 
+                if len(x) < MINIMUM_DATE_LENGTH:
+                    raise ValueError("String length too short to be date ({})"
+                                     .format(x))
                 d = parse(x, default=DEFAULT_DATETIME)
 
                 # Is it only a time?
