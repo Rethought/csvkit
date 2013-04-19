@@ -135,6 +135,11 @@ class TestNormalizeType(unittest.TestCase):
     def test_dates_coerce(self):
         self.assertEqual((datetime.date, [datetime.date(2008, 1, 1), datetime.date(2010, 1, 27), datetime.date(2008, 3, 1), None]), typeinference.normalize_column_type([u'Jan 1, 2008', u'2010-01-27', u'3/1/08', u''], normal_type=datetime.date))
 
+    def test_dates_coerce_with_always_datetime(self):
+        typeinference.ALWAYS_DATETIME = True
+        self.assertEqual((datetime.datetime, [datetime.datetime(2008, 1, 1), datetime.datetime(2010, 1, 27), datetime.datetime(2008, 3, 1), None]), typeinference.normalize_column_type([u'Jan 1, 2008', u'2010-01-27', u'3/1/08', u'']))
+        typeinference.ALWAYS_DATETIME = False
+
     def test_dates_coerce_fail(self):
         try:
             typeinference.normalize_column_type([u'Jan 1, 2008 at 4:40 AM', u'2010-01-27T03:45:00', u'3/1/08 16:14:45', u'4:45 AM'], normal_type=datetime.datetime)
